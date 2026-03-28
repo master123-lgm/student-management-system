@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://your-backend-url.up.railway.app',
+  apiBaseUrl: 'https://student-system-backend-dzb1.onrender.com',
 };
