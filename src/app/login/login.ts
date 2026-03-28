@@ -39,30 +39,17 @@ export class LoginComponent implements OnInit {
     }
 
     this.isSubmitting = true;
+    this.authService.warmupBackend();
 
-    this.authService.checkBackend().subscribe({
-      next: (isReady) => {
-        if (!isReady) {
-          this.errorMessage = `Backend is offline at ${this.backendUrl}. Start the Spring Boot server and try again.`;
-          this.isSubmitting = false;
-          return;
-        }
-
-        this.authService.login(this.credentials).subscribe({
-          next: (session) => {
-            this.router.navigateByUrl(this.authService.getDashboardRoute(session.role));
-          },
-          error: (error) => {
-            this.errorMessage = this.getAuthErrorMessage(error, 'log in');
-            this.isSubmitting = false;
-          },
-          complete: () => {
-            this.isSubmitting = false;
-          },
-        });
+    this.authService.login(this.credentials).subscribe({
+      next: (session) => {
+        this.router.navigateByUrl(this.authService.getDashboardRoute(session.role));
       },
-      error: () => {
-        this.errorMessage = `Backend is offline at ${this.backendUrl}. Start the Spring Boot server and try again.`;
+      error: (error) => {
+        this.errorMessage = this.getAuthErrorMessage(error, 'log in');
+        this.isSubmitting = false;
+      },
+      complete: () => {
         this.isSubmitting = false;
       },
     });
@@ -77,6 +64,6 @@ export class LoginComponent implements OnInit {
       return error.error?.message ?? `Authentication failed while trying to ${action}.`;
     }
 
-    return `Request timed out while trying to ${action}. Check that the backend is running.`;
+    return `Request timed out while trying to ${action}. If Render is waking up, wait a few seconds and try again.`;
   }
 }

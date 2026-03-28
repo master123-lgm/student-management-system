@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { EMPTY, Observable, catchError, map, of, tap, timeout } from 'rxjs';
+import { Observable, catchError, map, of, tap, timeout } from 'rxjs';
 import { AuthSession, LoginRequest, RegisterRequest, UserRole } from './auth.model';
 import { environment } from '../../environments/environment';
 
@@ -9,6 +9,8 @@ import { environment } from '../../environments/environment';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly authRequestTimeoutMs = 15000;
+  private readonly healthCheckTimeoutMs = 8000;
   readonly apiBaseUrl = environment.apiBaseUrl;
   private readonly authApiUrl = `${environment.apiBaseUrl}/api/auth`;
   private readonly storageKey = 'student-system-auth';
@@ -22,20 +24,22 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<AuthSession> {
     return this.http.post<AuthSession>(`${this.authApiUrl}/login`, credentials).pipe(
-      timeout(3000),
+      timeout(this.authRequestTimeoutMs),
       tap((session) => {
         this.sessionState.set(session);
         localStorage.setItem(this.storageKey, JSON.stringify(session));
+        this.backendStatusState.set('ready');
       }),
     );
   }
 
   register(payload: RegisterRequest): Observable<AuthSession> {
     return this.http.post<AuthSession>(`${this.authApiUrl}/register`, payload).pipe(
-      timeout(3000),
+      timeout(this.authRequestTimeoutMs),
       tap((session) => {
         this.sessionState.set(session);
         localStorage.setItem(this.storageKey, JSON.stringify(session));
+        this.backendStatusState.set('ready');
       }),
     );
   }
@@ -46,7 +50,7 @@ export class AuthService {
 
   checkBackend(): Observable<boolean> {
     return this.http.get(`${this.authApiUrl}/ping`).pipe(
-      timeout(2500),
+      timeout(this.healthCheckTimeoutMs),
       map(() => {
         this.backendStatusState.set('ready');
         return true;

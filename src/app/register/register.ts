@@ -41,30 +41,17 @@ export class RegisterComponent implements OnInit {
     }
 
     this.isSubmitting = true;
+    this.authService.warmupBackend();
 
-    this.authService.checkBackend().subscribe({
-      next: (isReady) => {
-        if (!isReady) {
-          this.errorMessage = `Backend is offline at ${this.backendUrl}. Start the Spring Boot server and try again.`;
-          this.isSubmitting = false;
-          return;
-        }
-
-        this.authService.register(this.registration).subscribe({
-          next: () => {
-            this.router.navigateByUrl('/');
-          },
-          error: (error) => {
-            this.errorMessage = this.getAuthErrorMessage(error, 'sign up');
-            this.isSubmitting = false;
-          },
-          complete: () => {
-            this.isSubmitting = false;
-          },
-        });
+    this.authService.register(this.registration).subscribe({
+      next: () => {
+        this.router.navigateByUrl('/');
       },
-      error: () => {
-        this.errorMessage = `Backend is offline at ${this.backendUrl}. Start the Spring Boot server and try again.`;
+      error: (error) => {
+        this.errorMessage = this.getAuthErrorMessage(error, 'sign up');
+        this.isSubmitting = false;
+      },
+      complete: () => {
         this.isSubmitting = false;
       },
     });
@@ -79,6 +66,6 @@ export class RegisterComponent implements OnInit {
       return error.error?.message ?? `Authentication failed while trying to ${action}.`;
     }
 
-    return `Request timed out while trying to ${action}. Check that the backend is running.`;
+    return `Request timed out while trying to ${action}. If Render is waking up, wait a few seconds and try again.`;
   }
 }
