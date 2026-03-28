@@ -655,6 +655,24 @@ export class Student implements OnInit {
         return error.error?.message ?? 'You are not allowed to access this information.';
       }
 
+      if (error.status === 409) {
+        const backendMessage = error.error?.message;
+
+        if (backendMessage === 'Student ID already exists') {
+          return 'Student ID already exists. Use a different student ID.';
+        }
+
+        if (backendMessage === 'Username already exists') {
+          return 'Username already exists. Use a different username.';
+        }
+
+        return backendMessage ?? `A duplicate record blocked the request while trying to ${action}.`;
+      }
+
+      if (error.status === 400) {
+        return error.error?.message ?? `The submitted form data is invalid while trying to ${action}.`;
+      }
+
       if (error.status === 0) {
         return 'Cannot reach backend at http://localhost:8080. Start the Spring Boot server and try again.';
       }
