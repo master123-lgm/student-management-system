@@ -9,6 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  readonly apiBaseUrl = environment.apiBaseUrl;
   private readonly authApiUrl = `${environment.apiBaseUrl}/api/auth`;
   private readonly storageKey = 'student-system-auth';
   private readonly sessionState = signal<AuthSession | null>(this.readStoredSession());

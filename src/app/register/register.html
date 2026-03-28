@@ -11,7 +11,7 @@
     }
 
     @if (backendStatus() === 'down') {
-      <p class="error-banner">Backend is offline at `http://localhost:8080`. Start Spring Boot before signing up.</p>
+      <p class="error-banner">Backend is offline at `{{ backendUrl }}`. Start Spring Boot before signing up.</p>
     }
 
     <form class="register-form" (ngSubmit)="register()">
@@ -33,7 +33,7 @@
         </select>
       </label>
 
-      <button type="submit" [disabled]="isSubmitting || backendStatus() === 'down'">
+      <button type="submit" [disabled]="isSubmitting">
         {{ isSubmitting ? 'Creating account...' : 'Sign Up' }}
       </button>
     </form>

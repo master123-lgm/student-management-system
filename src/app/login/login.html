@@ -9,7 +9,7 @@
     }
 
     @if (backendStatus() === 'down') {
-      <p class="error-banner">Backend is offline at `http://localhost:8080`. Start Spring Boot before logging in.</p>
+      <p class="error-banner">Backend is offline at `{{ backendUrl }}`. Start Spring Boot before logging in.</p>
     }
 
     <form class="login-form" (ngSubmit)="login()">
@@ -23,7 +23,7 @@
         <input type="password" name="password" [(ngModel)]="credentials.password" placeholder="Enter password" [disabled]="isSubmitting" />
       </label>
 
-      <button type="submit" [disabled]="isSubmitting || backendStatus() === 'down'">
+      <button type="submit" [disabled]="isSubmitting">
         {{ isSubmitting ? 'Logging in...' : 'Login' }}
       </button>
     </form>

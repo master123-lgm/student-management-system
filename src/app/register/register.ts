@@ -17,6 +17,7 @@ export class RegisterComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly backendStatus = this.authService.backendStatus;
+  readonly backendUrl = this.authService.apiBaseUrl;
   registration: RegisterRequest = {
     username: '',
     password: '',
@@ -44,7 +45,7 @@ export class RegisterComponent implements OnInit {
     this.authService.checkBackend().subscribe({
       next: (isReady) => {
         if (!isReady) {
-          this.errorMessage = 'Backend is offline at http://localhost:8080. Start the Spring Boot server and try again.';
+          this.errorMessage = `Backend is offline at ${this.backendUrl}. Start the Spring Boot server and try again.`;
           this.isSubmitting = false;
           return;
         }
@@ -63,7 +64,7 @@ export class RegisterComponent implements OnInit {
         });
       },
       error: () => {
-        this.errorMessage = 'Backend is offline at http://localhost:8080. Start the Spring Boot server and try again.';
+        this.errorMessage = `Backend is offline at ${this.backendUrl}. Start the Spring Boot server and try again.`;
         this.isSubmitting = false;
       },
     });
@@ -72,7 +73,7 @@ export class RegisterComponent implements OnInit {
   private getAuthErrorMessage(error: unknown, action: string): string {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 0) {
-        return 'Cannot reach backend at http://localhost:8080. Start the Spring Boot server and try again.';
+        return `Cannot reach backend at ${this.backendUrl}. Start the Spring Boot server and try again.`;
       }
 
       return error.error?.message ?? `Authentication failed while trying to ${action}.`;

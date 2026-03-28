@@ -674,7 +674,7 @@ export class Student implements OnInit {
       }
 
       if (error.status === 0) {
-        return 'Cannot reach backend at http://localhost:8080. Start the Spring Boot server and try again.';
+        return `Cannot reach backend at ${this.authService.apiBaseUrl}. Start the Spring Boot server and try again.`;
       }
 
       return error.error?.message ?? `Backend returned ${error.status} while trying to ${action}.`;
