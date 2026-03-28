@@ -2,13 +2,14 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { EMPTY, Observable, catchError, map, of, tap, timeout } from 'rxjs';
 import { AuthSession, LoginRequest, RegisterRequest, UserRole } from './auth.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly authApiUrl = 'http://localhost:8080/api/auth';
+  private readonly authApiUrl = `${environment.apiBaseUrl}/api/auth`;
   private readonly storageKey = 'student-system-auth';
   private readonly sessionState = signal<AuthSession | null>(this.readStoredSession());
   private readonly backendStatusState = signal<'unknown' | 'ready' | 'down'>('unknown');

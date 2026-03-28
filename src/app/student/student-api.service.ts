@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StudentAcademicUpdate, StudentProfileUpdate, StudentRecord } from './student.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StudentApiService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/students';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/students`;
 
   private readonly emptySearchFilters: StudentSearchFilters = {
     search: '',
