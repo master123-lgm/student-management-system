@@ -1,0 +1,92 @@
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Form Component</p>
+      <h2>{{ isEditing ? 'Edit Student' : 'Add Student' }}</h2>
+    </div>
+    @if (isEditing) {
+      <span class="mode-badge">Updating record</span>
+    }
+  </div>
+
+  <form class="student-form" (ngSubmit)="submit()">
+    @if (validationMessage) {
+      <p class="validation-banner">{{ validationMessage }}</p>
+    }
+
+    <label>
+      <span>Name</span>
+      <input type="text" name="name" [(ngModel)]="formModel.name" placeholder="Enter student name" [disabled]="isSaving" />
+    </label>
+
+    <label>
+      <span>Student ID</span>
+      <input type="text" name="studentId" [(ngModel)]="formModel.studentId" placeholder="Enter student ID" [disabled]="isSaving" />
+    </label>
+
+    <label>
+      <span>Username</span>
+      <input type="text" name="username" [(ngModel)]="formModel.username" placeholder="Enter login username" [disabled]="isSaving" />
+    </label>
+
+    <label>
+      <span>Course</span>
+      <input type="text" name="course" [(ngModel)]="formModel.course" placeholder="Enter course" [disabled]="isSaving" />
+    </label>
+
+    <label>
+      <span>Class</span>
+      <input type="text" name="studentClass" [(ngModel)]="formModel.studentClass" placeholder="Enter class" [disabled]="isSaving" />
+    </label>
+
+    <label>
+      <span>Year</span>
+      <select name="year" [(ngModel)]="formModel.year" [disabled]="isSaving">
+        <option value="">Select year</option>
+        <option value="Year 1">Year 1</option>
+        <option value="Year 2">Year 2</option>
+        <option value="Year 3">Year 3</option>
+        <option value="Year 4">Year 4</option>
+      </select>
+    </label>
+
+    <label>
+      <span>Status</span>
+      <select name="status" [(ngModel)]="formModel.status" [disabled]="isSaving">
+        <option value="Active">Active</option>
+        <option value="Deferred">Deferred</option>
+        <option value="Graduated">Graduated</option>
+      </select>
+    </label>
+
+    <label>
+      <span>Enrolled Courses</span>
+      <textarea name="enrolledCourses" [(ngModel)]="formModel.enrolledCourses" placeholder="Enter courses separated by commas" [disabled]="isSaving"></textarea>
+      <small>Optional. If left empty, the system will save `Not assigned yet`.</small>
+    </label>
+
+    <label>
+      <span>Grade / Result</span>
+      <input type="text" name="grade" [(ngModel)]="formModel.grade" placeholder="Enter grade summary" [disabled]="isSaving" />
+      <small>Optional. If left empty, the system will save `Pending`.</small>
+    </label>
+
+    <label>
+      <span>Attendance (%)</span>
+      <input type="number" name="attendancePercentage" [(ngModel)]="formModel.attendancePercentage" min="0" max="100" [disabled]="isSaving" />
+    </label>
+
+    <div class="actions">
+      <button class="primary-action" type="submit" [disabled]="isSaving">
+        @if (isSaving) {
+          Saving...
+        } @else {
+          {{ isEditing ? 'Update Student' : 'Save Student' }}
+        }
+      </button>
+      @if (isEditing) {
+        <button class="secondary-action" type="button" (click)="onCancel()" [disabled]="isSaving">Cancel</button>
+      }
+    </div>
+  </form>
+</section>

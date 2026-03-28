@@ -1,0 +1,303 @@
+<main class="student-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Student Module</p>
+      <h1>
+        @if (isStudent()) {
+          Student Portal
+        } @else if (isTeacher()) {
+          Teacher Academic Workspace
+        } @else {
+          Admin Student Management
+        }
+      </h1>
+      <p class="intro">
+        @if (isStudent()) {
+          View only your own profile, courses, grades, attendance, and transcript.
+        } @else if (isTeacher()) {
+          View all students and manage grades, attendance, and academic performance.
+        } @else {
+          Full student administration, course visibility, reporting, and record control.
+        }
+      </p>
+    </div>
+    <a routerLink="/home" class="home-link">Back Home</a>
+  </section>
+
+  <p class="session-caption">
+    Logged in as <strong>{{ session()?.username }}</strong> with <strong>{{ session()?.role }}</strong> access.
+  </p>
+
+  <section class="role-menu" aria-label="Visible menu by role">
+    @for (item of visibleMenuItems(); track item.title) {
+      <article class="role-menu-card">
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.description }}</p>
+      </article>
+    }
+  </section>
+
+  @if (errorMessage) {
+    <p class="status-banner error">{{ errorMessage }}</p>
+  }
+
+  @if (successMessage) {
+    <p class="status-banner success">{{ successMessage }}</p>
+  }
+
+  @if (isStudent()) {
+    <section class="panel">
+      <div class="panel-header">
+        <h2>My Profile</h2>
+        @if (ownProfile) {
+          <span class="student-count">{{ ownProfile.studentId }}</span>
+        }
+      </div>
+
+      @if (ownProfile) {
+        <section class="dashboard-grid" aria-label="Student metrics">
+          <article class="metric-card">
+            <span class="metric-label">Current Grade</span>
+            <strong>{{ ownProfile.grade }}</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Attendance</span>
+            <strong>{{ ownProfile.attendancePercentage }}%</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Course</span>
+            <strong>{{ ownProfile.course }}</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Status</span>
+            <strong>{{ ownProfile.status }}</strong>
+          </article>
+        </section>
+
+        <div class="student-card personal-card">
+          <p><strong>Name:</strong> {{ ownProfile.name }}</p>
+          <p><strong>Username:</strong> {{ ownProfile.username }}</p>
+          <p><strong>Class:</strong> {{ ownProfile.studentClass }}</p>
+          <p><strong>Year:</strong> {{ ownProfile.year }}</p>
+          <p><strong>Enrolled Courses:</strong> {{ ownProfile.enrolledCourses }}</p>
+          <div class="card-actions">
+            <button type="button" class="secondary-action" (click)="downloadTranscript()">Download Transcript</button>
+          </div>
+        </div>
+
+        <form class="filter-bar profile-form" (ngSubmit)="saveOwnProfile()">
+          <label>
+            <span>Name</span>
+            <input type="text" name="ownName" [(ngModel)]="ownProfileDraft.name" [disabled]="isSaving" />
+          </label>
+          <label>
+            <span>Course</span>
+            <input type="text" name="ownCourse" [(ngModel)]="ownProfileDraft.course" [disabled]="isSaving" />
+          </label>
+          <label>
+            <span>Class</span>
+            <input type="text" name="ownClass" [(ngModel)]="ownProfileDraft.studentClass" [disabled]="isSaving" />
+          </label>
+          <label>
+            <span>Year</span>
+            <select name="ownYear" [(ngModel)]="ownProfileDraft.year" [disabled]="isSaving">
+              <option value="Year 1">Year 1</option>
+              <option value="Year 2">Year 2</option>
+              <option value="Year 3">Year 3</option>
+              <option value="Year 4">Year 4</option>
+            </select>
+          </label>
+          <label class="wide-field">
+            <span>Enrolled Courses</span>
+            <textarea name="ownCourses" [(ngModel)]="ownProfileDraft.enrolledCourses" [disabled]="isSaving"></textarea>
+          </label>
+          <div class="filter-actions">
+            <button type="submit" class="edit-action" [disabled]="isSaving">Update My Profile</button>
+          </div>
+        </form>
+      } @else {
+        <p class="empty-state">Your student profile is not available yet. Ask an admin to create it with your username.</p>
+      }
+    </section>
+  } @else {
+    <nav class="view-switch" aria-label="Management views">
+      @if (isAdmin()) {
+        <button type="button" [class.active]="activeView === 'form'" (click)="setActiveView('form')">
+          Student Form
+        </button>
+      }
+      <button type="button" [class.active]="activeView === 'list'" (click)="setActiveView('list')">
+        @if (isTeacher()) { Academic Records } @else { View Students }
+      </button>
+    </nav>
+
+    @if (activeView === 'form' && isAdmin()) {
+      <app-form [student]="selectedStudent" [isSaving]="isSaving" (save)="saveStudent($event)" (cancel)="cancelEdit()" />
+    } @else {
+      <section class="panel">
+        <div class="panel-header">
+          <h2>@if (isTeacher()) { Student Performance } @else { View Students }</h2>
+          <span class="student-count">{{ students.length }} visible</span>
+        </div>
+
+        <section class="dashboard-grid" aria-label="Student dashboard">
+          <article class="metric-card">
+            <span class="metric-label">Total Students</span>
+            <strong>{{ totalStudents }}</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Active Students</span>
+            <strong>{{ activeStudentsCount }}</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Deferred Students</span>
+            <strong>{{ deferredStudentsCount }}</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Courses Covered</span>
+            <strong>{{ totalCourses }}</strong>
+          </article>
+        </section>
+
+        <form class="filter-bar" (ngSubmit)="applyFilters()">
+          <label>
+            <span>Search</span>
+            <input type="text" name="search" [(ngModel)]="filters.search" placeholder="Search by name, ID, username, or course" [disabled]="isLoading" />
+          </label>
+          <label>
+            <span>Class</span>
+            <input type="text" name="studentClassFilter" [(ngModel)]="filters.studentClass" placeholder="Filter by class" [disabled]="isLoading" />
+          </label>
+          <label>
+            <span>Year</span>
+            <select name="yearFilter" [(ngModel)]="filters.year" [disabled]="isLoading">
+              <option value="">All years</option>
+              <option value="Year 1">Year 1</option>
+              <option value="Year 2">Year 2</option>
+              <option value="Year 3">Year 3</option>
+              <option value="Year 4">Year 4</option>
+            </select>
+          </label>
+          <label>
+            <span>Status</span>
+            <select name="statusFilter" [(ngModel)]="filters.status" [disabled]="isLoading">
+              <option value="">All statuses</option>
+              <option value="Active">Active</option>
+              <option value="Deferred">Deferred</option>
+              <option value="Graduated">Graduated</option>
+            </select>
+          </label>
+          <div class="filter-actions">
+            <button type="submit" class="edit-action" [disabled]="isLoading">Apply</button>
+            <button type="button" class="secondary-action" [disabled]="isLoading" (click)="clearFilters()">Clear</button>
+          </div>
+        </form>
+
+        @if (canUseReports()) {
+          <section class="analytics-panel">
+            <div class="analytics-header">
+              <div>
+                <h3>@if (isTeacher()) { Performance Analytics } @else { Reports & Analytics }</h3>
+                <p>
+                  @if (isTeacher()) {
+                    Review student performance, assigned courses, grades, and attendance.
+                  } @else {
+                    Export full student reports and inspect system-wide course distribution.
+                  }
+                </p>
+              </div>
+              <div class="report-actions">
+                <button type="button" class="edit-action" [disabled]="!students.length" (click)="exportExcelReport()">Export Excel</button>
+                <button type="button" class="secondary-action" [disabled]="!students.length" (click)="exportPdfReport()">Export PDF</button>
+              </div>
+            </div>
+
+            <div class="course-breakdown">
+              <h4>Students Per Course</h4>
+              @if (studentsPerCourse.length) {
+                <div class="course-list">
+                  @for (course of studentsPerCourse; track course.label) {
+                    <article class="course-card">
+                      <span>{{ course.label }}</span>
+                      <strong>{{ course.value }}</strong>
+                    </article>
+                  }
+                </div>
+              } @else {
+                <p class="empty-state">No analytics available until student records are loaded.</p>
+              }
+            </div>
+          </section>
+        }
+
+        @if (students.length) {
+          <div class="student-list">
+            @for (student of students; track trackStudent($index, student)) {
+              <article class="student-card">
+                <h3>{{ student.name }}</h3>
+                <p><strong>Student ID:</strong> {{ student.studentId }}</p>
+                <p><strong>Username:</strong> {{ student.username }}</p>
+                <p><strong>Course:</strong> {{ student.course }}</p>
+                <p><strong>Class:</strong> {{ student.studentClass }}</p>
+                <p><strong>Year:</strong> {{ student.year }}</p>
+                <p><strong>Status:</strong> {{ student.status }}</p>
+                <p><strong>Grade:</strong> {{ student.grade }}</p>
+                <p><strong>Attendance:</strong> {{ student.attendancePercentage }}%</p>
+                <p><strong>Enrolled Courses:</strong> {{ student.enrolledCourses }}</p>
+
+                @if (canManageAcademic()) {
+                  @if (editingAcademicId === student.id) {
+                    <div class="academic-editor">
+                      <label>
+                        <span>Courses</span>
+                        <textarea
+                          name="academicCourses{{ student.id }}"
+                          [(ngModel)]="academicDrafts[student.id!].enrolledCourses"
+                          [disabled]="isSaving"
+                        ></textarea>
+                      </label>
+                      <label>
+                        <span>Grade</span>
+                        <input
+                          type="text"
+                          name="academicGrade{{ student.id }}"
+                          [(ngModel)]="academicDrafts[student.id!].grade"
+                          [disabled]="isSaving"
+                        />
+                      </label>
+                      <label>
+                        <span>Attendance</span>
+                        <input
+                          type="number"
+                          name="academicAttendance{{ student.id }}"
+                          [(ngModel)]="academicDrafts[student.id!].attendancePercentage"
+                          min="0"
+                          max="100"
+                          [disabled]="isSaving"
+                        />
+                      </label>
+                      <div class="card-actions">
+                        <button type="button" class="edit-action" (click)="saveAcademicRecord(student.id!)" [disabled]="isSaving">Save Academic Data</button>
+                        <button type="button" class="secondary-action" (click)="cancelAcademicEdit()" [disabled]="isSaving">Cancel</button>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="card-actions">
+                      <button type="button" class="edit-action" [disabled]="student.id === undefined" (click)="beginAcademicEdit(student)">Manage Academic Data</button>
+                      @if (isAdmin()) {
+                        <button type="button" class="secondary-action" [disabled]="student.id === undefined" (click)="editStudent(student.id!)">Edit Profile</button>
+                        <button type="button" class="delete-action" [disabled]="student.id === undefined" (click)="deleteStudent(student.id!)">Delete Student</button>
+                      }
+                    </div>
+                  }
+                }
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty-state">No student records are available for this view.</p>
+        }
+      </section>
+    }
+  }
+</main>

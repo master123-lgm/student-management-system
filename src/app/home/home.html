@@ -1,0 +1,42 @@
+<main class="home-page">
+  <section class="hero-card">
+    <p class="eyebrow">Home Component</p>
+    <h1>Student Management System</h1>
+    <p class="intro">
+      Manage student records with role-based access for students, teachers, and admins.
+    </p>
+
+    <div class="session-strip">
+      <span class="role-badge">{{ session()?.role }}</span>
+      <span class="session-user">Signed in as {{ session()?.username }}</span>
+    </div>
+
+    <div class="hero-actions">
+      <a routerLink="/students" class="primary-link">Open Student Module</a>
+      <button type="button" class="secondary-link" (click)="logout()">Logout</button>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="feature-card">
+      <h2>System Features</h2>
+      <ul>
+        <li>Login system for students, teachers, and admins.</li>
+        <li>Add student records with name, ID, and course.</li>
+        <li>Only admins can update and delete student records.</li>
+        <li>Students and teachers can view records after login.</li>
+        <li>Move between home and records with direct navigation.</li>
+      </ul>
+    </article>
+
+    <article class="feature-card">
+      <h2>System Design</h2>
+      <ul>
+        <li>Home Component for the landing page.</li>
+        <li>Student Component for listing and record actions.</li>
+        <li>Form Component for add and edit workflows.</li>
+        <li>Authentication service with token-based login.</li>
+      </ul>
+    </article>
+  </section>
+</main>

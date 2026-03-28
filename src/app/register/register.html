@@ -1,0 +1,46 @@
+<main class="register-page">
+  <section class="register-card">
+    <p class="eyebrow">Authentication</p>
+    <h1>Create Student or Teacher Account</h1>
+    <p class="intro">
+      Use this sign-up page to create a student or teacher account. Admin accounts remain restricted.
+    </p>
+
+    @if (errorMessage) {
+      <p class="error-banner">{{ errorMessage }}</p>
+    }
+
+    @if (backendStatus() === 'down') {
+      <p class="error-banner">Backend is offline at `http://localhost:8080`. Start Spring Boot before signing up.</p>
+    }
+
+    <form class="register-form" (ngSubmit)="register()">
+      <label>
+        <span>Username</span>
+        <input type="text" name="username" [(ngModel)]="registration.username" placeholder="Choose username" [disabled]="isSubmitting" />
+      </label>
+
+      <label>
+        <span>Password</span>
+        <input type="password" name="password" [(ngModel)]="registration.password" placeholder="Choose password" [disabled]="isSubmitting" />
+      </label>
+
+      <label>
+        <span>Role</span>
+        <select name="role" [(ngModel)]="registration.role" [disabled]="isSubmitting">
+          <option value="STUDENT">Student</option>
+          <option value="TEACHER">Teacher</option>
+        </select>
+      </label>
+
+      <button type="submit" [disabled]="isSubmitting || backendStatus() === 'down'">
+        {{ isSubmitting ? 'Creating account...' : 'Sign Up' }}
+      </button>
+    </form>
+
+    <p class="switch-link">
+      Already have an account?
+      <a routerLink="/login">Back to login</a>
+    </p>
+  </section>
+</main>
